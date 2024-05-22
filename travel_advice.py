@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
-from langchain.agents import Tool
+
 
 itinerary_template = """
 Create a {days}-day travel itinerary for {destination} considering the following preferences:
@@ -13,7 +13,7 @@ Create a {days}-day travel itinerary for {destination} considering the following
 
 load_dotenv()
 
-def generate_itinerary(destination, days, budget, interests, travel_style):
+def generate_travel_plan(destination, days, budget, interests, travel_style):
     llm = ChatOpenAI(temperature=0)
     output_parser = StrOutputParser()
     prompt = PromptTemplate(
