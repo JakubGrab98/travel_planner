@@ -46,10 +46,10 @@ if __name__ == "__main__":
                 }
                 flight_details = flight_search.get_flight_data(api_params)
                 travel_plan = generate_travel_plan(destination, days, budget, interests, travel_style)
-                #conversation = generate_full_itinerary(flight_details, travel_plan)
                 st.markdown("## Flight Details")
                 st.write(f"""
                     **Flight from**: {flight_details.origin_city} ({flight_details.origin_airport}) to: {flight_details.destination_city} ({flight_details.destination_airport}),
+                    Airlines: {flight_details.airlines}
 
                     **Deperture**: {flight_details.departure_date} | {flight_details.departure_time}
                     **Return**: {flight_details.return_date} | {flight_details.return_time}

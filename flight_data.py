@@ -5,6 +5,7 @@ from dataclasses import dataclass
 class FlightData:
     """Class for structuring flight parameters for searching the cheapiest flight"""
     price: float
+    airlines: str
     origin_city: str
     origin_airport: str
     destination_city: str

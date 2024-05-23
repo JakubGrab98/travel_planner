@@ -49,7 +49,7 @@ class FlightSearch():
             e.add_note("No airport in this destination")
             return None
 
-    def get_flight_data(self, params: dict) -> FlightData | None:
+    def get_flight_data(self, params: dict) -> None | FlightData:
         """Search flight detail based on user parameters
 
         Args:
@@ -63,12 +63,14 @@ class FlightSearch():
         try:
             data = response.json()["data"][0]
             logger.info("Flight data was retrieved!")
+            
         except IndexError as e:
             logger.error(e.add_note("No flight available with such parameters"))
             return None
             
         flight_data = FlightData(
             price=data["price"],
+            airlines = data["airlines"][0],
             origin_city=data["route"][0]["cityFrom"],
             origin_airport=data["route"][0]["flyFrom"],
             destination_city=data["route"][0]["cityTo"],
