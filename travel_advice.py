@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 
 itinerary_template = """
+You are a helpful travel assistant.
 Create a {days}-day travel itinerary for {destination} considering the following preferences:
 - Budget: {budget}
 - Interests: {interests}
@@ -14,7 +15,7 @@ Create a {days}-day travel itinerary for {destination} considering the following
 load_dotenv()
 
 def generate_travel_plan(destination, days, budget, interests, travel_style):
-    llm = ChatOpenAI(temperature=0)
+    llm = ChatOpenAI(temperature=0, model_name="gpt-4-turbo")
     output_parser = StrOutputParser()
     prompt = PromptTemplate(
         input_variables=["destination", "days", "budget", "interests", "travel_style"],
