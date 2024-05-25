@@ -13,20 +13,34 @@ if __name__ == "__main__":
     st.title("Interactive Travel Planning Application")
 
     with st.sidebar:
-        departure_city = st.text_input("Enter your departure city:")
-        destination = st.text_input("Enter your destination city:")
-        days = st.number_input("Number of days:", min_value=1, max_value=30)
-        date_from = st.date_input(
-            "Start date to search flight details:",
-            min_value=get_today_date(),
-        )
-        date_to = st.date_input(
-            "End date to search flight details:",
-            min_value=get_today_date(),
-        )
-        budget = st.selectbox("Select your budget:", ["Low", "Medium", "High"])
-        interests = st.text_input("Enter your interests (e.g., museums, hiking, food):")
-        travel_style = st.selectbox("Select your travel style:", ["Relaxed", "Adventurous", "Cultural"])
+        page = st.selectbox("Select your budget:", ["1", "2"])
+        if page == "1":
+            departure_city = st.text_input("Enter your departure city:")
+            destination = st.text_input("Enter your destination city:")
+            days = st.number_input("Number of days:", min_value=1, max_value=30)
+            date_from = st.date_input(
+                "Start date to search flight details:",
+                min_value=get_today_date(),
+            )
+            date_to = st.date_input(
+                "End date to search flight details:",
+                min_value=get_today_date(),
+            )
+            budget = st.selectbox("Select your budget:", ["Low", "Medium", "High"])
+            interests = st.text_input("Enter your interests (e.g., museums, hiking, food):")
+            travel_style = st.selectbox("Select your travel style:", ["Relaxed", "Adventurous", "Cultural"])
+        else:             
+            departure_city = st.text_input("Enter your departure city:")
+            destination = st.text_input("Enter your destination city:")
+            days = st.number_input("Number of days:", min_value=1, max_value=30)
+            date_from = st.date_input(
+                "Start date to search flight details:",
+                min_value=get_today_date(),
+            )
+            date_to = st.date_input(
+                "End date to search flight details:",
+                min_value=get_today_date(),
+            )
 
     if st.button("Start Planning"):
         if destination and days and budget and interests and travel_style:
