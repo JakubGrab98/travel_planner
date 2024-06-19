@@ -1,6 +1,7 @@
 import streamlit as st
-from utils import get_today_date, get_tomorrow_date, get_future_date
-from flight_search import FlightSearch
+from utils import get_today_date
+
+connection = st.connection("postgresql", "sql", **st.secrets["postgresql"])
 
 
 if __name__ == "__main__":
@@ -24,8 +25,16 @@ if __name__ == "__main__":
             "End date to search flight details:",
             min_value=get_today_date(),
         )
+        if st.button("Create a new parameter"):
+            connection.query(f"""INSERT INTO public.search_parameters
+                             VALUES (DEFAULT, {departure_city}, {destination}, {days}, {date_from}, {date_to})""")
+
     elif option=="Read":
         st.subheader("Your parameters")
+        select = "SELECT * FROM public.search_parameters;"
+        df = connection.query(select, ttl = "10m")
+
+        st.dataframe(df)
     elif option=="Update":
         st.subheader("Update your parameters")
     elif option=="Delete":
