@@ -1,0 +1,55 @@
+[DEBUG|_config|L80] 2024-05-28T20:47:33+0200: load_ssl_context verify=True cert=None trust_env=True http2=False
+[DEBUG|_config|L146] 2024-05-28T20:47:33+0200: load_verify_locations cafile='c:\\travel_planner\\.venv\\Lib\\site-packages\\certifi\\cacert.pem'
+[DEBUG|_config|L80] 2024-05-28T20:47:33+0200: load_ssl_context verify=True cert=None trust_env=True http2=False
+[DEBUG|_config|L146] 2024-05-28T20:47:33+0200: load_verify_locations cafile='c:\\travel_planner\\.venv\\Lib\\site-packages\\certifi\\cacert.pem'
+[DEBUG|connectionpool|L1055] 2024-05-28T20:47:33+0200: Starting new HTTPS connection (1): api.smith.langchain.com:443
+[DEBUG|_base_client|L446] 2024-05-28T20:47:33+0200: Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'json_data': {'messages': [{'content': '\nYou are a helpful travel assistant.\nCreate a 3-day travel itinerary for Warsaw considering the following preferences:\n- Budget: High\n- Interests: food\n- Travel style: Cultural\n', 'role': 'user'}], 'model': 'gpt-4-turbo', 'n': 1, 'stream': False, 'temperature': 0.0}}
+[DEBUG|_base_client|L949] 2024-05-28T20:47:33+0200: Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+[DEBUG|_trace|L45] 2024-05-28T20:47:33+0200: connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=None socket_options=None
+[DEBUG|_trace|L45] 2024-05-28T20:47:33+0200: connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001E54D6F8E90>
+[DEBUG|_trace|L45] 2024-05-28T20:47:33+0200: start_tls.started ssl_context=<ssl.SSLContext object at 0x000001E54D7F5B50> server_hostname='api.openai.com' timeout=None
+[DEBUG|_trace|L45] 2024-05-28T20:47:33+0200: start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001E54D850ED0>
+[DEBUG|_trace|L45] 2024-05-28T20:47:33+0200: send_request_headers.started request=<Request [b'POST']>
+[DEBUG|_trace|L45] 2024-05-28T20:47:33+0200: send_request_headers.complete
+[DEBUG|_trace|L45] 2024-05-28T20:47:33+0200: send_request_body.started request=<Request [b'POST']>
+[DEBUG|_trace|L45] 2024-05-28T20:47:33+0200: send_request_body.complete
+[DEBUG|_trace|L45] 2024-05-28T20:47:33+0200: receive_response_headers.started request=<Request [b'POST']>
+[DEBUG|connectionpool|L549] 2024-05-28T20:47:33+0200: https://api.smith.langchain.com:443 "GET /info HTTP/1.1" 200 209
+[DEBUG|connectionpool|L549] 2024-05-28T20:47:34+0200: https://api.smith.langchain.com:443 "POST /runs/batch HTTP/1.1" 202 33
+[DEBUG|_trace|L45] 2024-05-28T20:47:59+0200: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Tue, 28 May 2024 18:47:58 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'openai-organization', b'user-nbryzkoml7dzexq3gomoikj0'), (b'openai-processing-ms', b'25024'), (b'openai-version', b'2020-10-01'), (b'strict-transport-security', b'max-age=15724800; includeSubDomains'), (b'x-ratelimit-limit-requests', b'500'), (b'x-ratelimit-limit-tokens', b'30000'), (b'x-ratelimit-remaining-requests', b'499'), (b'x-ratelimit-remaining-tokens', b'29938'), (b'x-ratelimit-reset-requests', b'120ms'), (b'x-ratelimit-reset-tokens', b'124ms'), (b'x-request-id', b'req_072e7e96b08bcda23327c18b5e260201'), (b'CF-Cache-Status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=XItwiMzqN1bk39RqGw5FmkpP4zaeKKLK5jBrUtX.i8s-1716922078-1.0.1.1-1pS7I_RIMEc2GHCq.nlZofcOQ1BbIM.5_hBrQZOWqHjJ_8Wg7cp66.42BWcDHYLlMZNT297oss_ayJt5WKglzQ; path=/; expires=Tue, 28-May-24 19:17:58 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Set-Cookie', b'_cfuvid=zyeqWljEh7YSBAs.fC97H8_Yzo7mSI7oUJb5Umzz_Ek-1716922078478-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'88b069f01d64bff0-WAW'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+[INFO|_client|L1026] 2024-05-28T20:47:59+0200: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[DEBUG|_trace|L45] 2024-05-28T20:47:59+0200: receive_response_body.started request=<Request [b'POST']>
+[DEBUG|_trace|L45] 2024-05-28T20:47:59+0200: receive_response_body.complete
+[DEBUG|_trace|L45] 2024-05-28T20:47:59+0200: response_closed.started
+[DEBUG|_trace|L45] 2024-05-28T20:47:59+0200: response_closed.complete
+[DEBUG|_base_client|L988] 2024-05-28T20:47:59+0200: HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Tue, 28 May 2024 18:47:58 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('openai-organization', 'user-nbryzkoml7dzexq3gomoikj0'), ('openai-processing-ms', '25024'), ('openai-version', '2020-10-01'), ('strict-transport-security', 'max-age=15724800; includeSubDomains'), ('x-ratelimit-limit-requests', '500'), ('x-ratelimit-limit-tokens', '30000'), ('x-ratelimit-remaining-requests', '499'), ('x-ratelimit-remaining-tokens', '29938'), ('x-ratelimit-reset-requests', '120ms'), ('x-ratelimit-reset-tokens', '124ms'), ('x-request-id', 'req_072e7e96b08bcda23327c18b5e260201'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=XItwiMzqN1bk39RqGw5FmkpP4zaeKKLK5jBrUtX.i8s-1716922078-1.0.1.1-1pS7I_RIMEc2GHCq.nlZofcOQ1BbIM.5_hBrQZOWqHjJ_8Wg7cp66.42BWcDHYLlMZNT297oss_ayJt5WKglzQ; path=/; expires=Tue, 28-May-24 19:17:58 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('set-cookie', '_cfuvid=zyeqWljEh7YSBAs.fC97H8_Yzo7mSI7oUJb5Umzz_Ek-1716922078478-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '88b069f01d64bff0-WAW'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+[DEBUG|_base_client|L996] 2024-05-28T20:47:59+0200: request_id: req_072e7e96b08bcda23327c18b5e260201
+[DEBUG|_trace|L45] 2024-05-28T20:47:59+0200: close.started
+[DEBUG|_trace|L45] 2024-05-28T20:47:59+0200: close.complete
+[DEBUG|connectionpool|L549] 2024-05-28T20:47:59+0200: https://api.smith.langchain.com:443 "POST /runs/batch HTTP/1.1" 202 33
+[DEBUG|connectionpool|L1051] 2024-06-23T20:34:31+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:34:32+0200: https://api.tequila.kiwi.com:443 "GET /locations/query?term=Warsaw&location_types=airport HTTP/11" 200 None
+[DEBUG|connectionpool|L1051] 2024-06-23T20:34:32+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:34:32+0200: https://api.tequila.kiwi.com:443 "GET /locations/query?term=Brussels&location_types=airport HTTP/11" 200 None
+[DEBUG|connectionpool|L1051] 2024-06-23T20:34:32+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:34:33+0200: https://api.tequila.kiwi.com:443 "GET /v2/search?fly_from=WAW&fly_to=BRU&one_for_city=1&curr=PLN&max_stopovers=1&nights_in_dst_from=4&nights_in_dst_to=4&date_from=24%2F06%2F2024&date_to=23%2F12%2F2024 HTTP/11" 200 None
+[INFO|flight_search|L65] 2024-06-23T20:34:33+0200: Flight data was retrieved!
+[DEBUG|connectionpool|L1051] 2024-06-23T20:34:49+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:34:49+0200: https://api.tequila.kiwi.com:443 "GET /locations/query?term=Warsaw&location_types=airport HTTP/11" 200 None
+[DEBUG|connectionpool|L1051] 2024-06-23T20:34:49+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:34:49+0200: https://api.tequila.kiwi.com:443 "GET /locations/query?term=Brussels&location_types=airport HTTP/11" 200 None
+[DEBUG|connectionpool|L1051] 2024-06-23T20:34:49+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:34:50+0200: https://api.tequila.kiwi.com:443 "GET /v2/search?fly_from=WAW&fly_to=BRU&one_for_city=1&curr=PLN&max_stopovers=1&nights_in_dst_from=4&nights_in_dst_to=4&date_from=24%2F06%2F2024&date_to=23%2F12%2F2024 HTTP/11" 200 None
+[INFO|flight_search|L65] 2024-06-23T20:34:50+0200: Flight data was retrieved!
+[DEBUG|connectionpool|L1051] 2024-06-23T20:36:19+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:36:20+0200: https://api.tequila.kiwi.com:443 "GET /locations/query?term=Warsaw&location_types=airport HTTP/11" 200 None
+[DEBUG|connectionpool|L1051] 2024-06-23T20:36:20+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:36:20+0200: https://api.tequila.kiwi.com:443 "GET /locations/query?term=Brussels&location_types=airport HTTP/11" 200 None
+[DEBUG|connectionpool|L1051] 2024-06-23T20:36:20+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:36:21+0200: https://api.tequila.kiwi.com:443 "GET /v2/search?fly_from=WAW&fly_to=BRU&one_for_city=1&curr=PLN&max_stopovers=1&nights_in_dst_from=4&nights_in_dst_to=4&date_from=2024-07-14&date_to=2024-07-31 HTTP/11" 200 None
+[INFO|flight_search|L65] 2024-06-23T20:36:21+0200: Flight data was retrieved!
+[DEBUG|connectionpool|L1051] 2024-06-23T20:36:38+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:36:38+0200: https://api.tequila.kiwi.com:443 "GET /locations/query?term=Warsaw&location_types=airport HTTP/11" 200 None
+[DEBUG|connectionpool|L1051] 2024-06-23T20:36:38+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443
+[DEBUG|connectionpool|L546] 2024-06-23T20:36:39+0200: https://api.tequila.kiwi.com:443 "GET /locations/query?term=Brussels&location_types=airport HTTP/11" 200 None
+[DEBUG|connectionpool|L1051] 2024-06-23T20:36:39+0200: Starting new HTTPS connection (1): api.tequila.kiwi.com:443

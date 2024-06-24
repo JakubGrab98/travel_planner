@@ -35,8 +35,8 @@ if __name__ == "__main__":
                     "max_stopovers": 1,
                     "nights_in_dst_from": int(days),
                     "nights_in_dst_to": int(days),
-                    "date_from": get_tomorrow_date(),
-                    "date_to": get_future_date(),
+                    "date_from": date_from, #get_tomorrow_date(),
+                    "date_to": date_to #get_future_date(),
                 }
                 flight_details = flight_search.get_flight_data(api_params)
                 st.markdown("## Flight Details")
