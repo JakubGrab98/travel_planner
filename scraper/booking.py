@@ -4,14 +4,16 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import const as const
 from booking_filter import BookingFilter
-
+from booking_report import BookingReport
 
 class Booking(webdriver.Chrome):
     def __init__(self, driver_path, teardown=False):
         self.driver_path = driver_path
         self.teardown = teardown
         os.environ["PATH"] += self.driver_path
-        super(Booking, self).__init__()
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        super(Booking, self).__init__(options=options)
         self.implicitly_wait(60)
         self.maximize_window()
 
@@ -51,13 +53,13 @@ class Booking(webdriver.Chrome):
 
     def send_city_key(self, city: str):
         city_box = self.find_element(By.CSS_SELECTOR, "input[name='ss']")
-        city_box.clear()
+        # city_box.clear()
         city_box.send_keys(city)
 
-        first_result = self.find_element(
-            By.CSS_SELECTOR, "li[id='autocomplete-result-0']"
-        )
-        first_result.click()
+        # first_result = self.find_element(
+        #     By.CSS_SELECTOR, "li[id='autocomplete-result-0']"
+        # )
+        # first_result.click()
 
     def choose_trip_dates(self, check_in_date: str, check_out_date: str):
         self.find_element(
@@ -78,5 +80,11 @@ class Booking(webdriver.Chrome):
         filter.breakfast_included()
         filter.private_bathroom()
         filter.excellent_guest_rates()
+        filter.sort_results()
 
-
+    def report_results(self):
+        hotel_boxes = self.find_element(
+            By.CSS_SELECTOR, "div[data-testid='property-card']"
+        )
+        report = BookingReport(hotel_boxes)
+        report.get_hotel_name()
