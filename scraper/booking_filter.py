@@ -1,6 +1,6 @@
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-
+import time
 
 class BookingFilter:
     def __init__(self, driver: WebDriver):
@@ -23,8 +23,19 @@ class BookingFilter:
             By.CSS_SELECTOR, "div[data-filters-item='review_score:review_score=90']"
         )
         excellent.click()
+        time.sleep(1)
         very_good = self.driver.find_element(
             By.CSS_SELECTOR, "div[data-filters-item='review_score:review_score=80']"
         )
         very_good.click()
         
+    def sort_results(self):
+        dropdown_list = self.driver.find_element(
+            By.CSS_SELECTOR, "button[data-testid='sorters-dropdown-trigger']"
+        )
+        dropdown_list.click()
+
+        cheapiest_price = self.driver.find_element(
+            By.CSS_SELECTOR, "button[data-id='review_score_and_price']"
+        )
+        cheapiest_price.click()
