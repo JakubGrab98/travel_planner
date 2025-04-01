@@ -2,9 +2,13 @@ import os
 from types import TracebackType
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import const as const
-from booking_filter import BookingFilter
-from booking_report import BookingReport
+from scraper import const as const
+from scraper.booking_filter import BookingFilter
+from scraper.booking_report import BookingReport
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
 
 class Booking(webdriver.Chrome):
     def __init__(self, driver_path, teardown=False):
@@ -13,6 +17,10 @@ class Booking(webdriver.Chrome):
         os.environ["PATH"] += self.driver_path
         options = webdriver.ChromeOptions()
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        # options.add_argument("--headless=new")
+        # options.add_argument("--disable-gpu")
+        # options.add_argument("--no-sandbox")
+        # options.add_argument("--window-size=1920,1080")
         super(Booking, self).__init__(options=options)
         self.implicitly_wait(60)
         self.maximize_window()
@@ -31,11 +39,19 @@ class Booking(webdriver.Chrome):
         accept_button.click()
 
     def close_login_window(self):
-        close_button = self.find_element(
-            By.CSS_SELECTOR, "button[aria-label='Dismiss sign-in info.']"
-        )
-        if close_button:
+        try:
+            self.refresh()
+            login_window_locator = (By.CSS_SELECTOR, "button[aria-label='Dismiss sign-in info.']")
+            WebDriverWait(self, 10).until(EC.presence_of_element_located(login_window_locator))
+
+            close_button = self.find_element(
+                By.CSS_SELECTOR, "button[aria-label='Dismiss sign-in info.']"
+            )
             close_button.click()
+        except TimeoutException:
+            print("No login window")
+        finally:
+            pass
 
     def change_currency(self, currency_code):
         currency_element = self.find_element(
@@ -82,9 +98,10 @@ class Booking(webdriver.Chrome):
         filter.excellent_guest_rates()
         filter.sort_results()
 
-    def report_results(self):
+    def report_results(self) -> list | None:
         hotel_boxes = self.find_element(
-            By.CSS_SELECTOR, "div[data-testid='property-card']"
+            By.ID, "bodyconstraint"
         )
         report = BookingReport(hotel_boxes)
-        report.get_hotel_name()
+        report_results = report.get_hotel_details()
+        return report_results
