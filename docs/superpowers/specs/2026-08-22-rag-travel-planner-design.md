@@ -26,7 +26,7 @@ The pipeline/orchestration quality matters at least as much as the LLM output qu
 - No autonomous multi-step agent loop (rejected: Approach B, tool-calling agent) — reliability
   and testability for a timed portfolio review matter more than agent flash.
 - No second vector database service — pgvector on the existing Postgres instance only.
-- No hosted/live Selenium scraping — booking.com scraping stays local-only, documented.
+- No web scraping anywhere in the project (see Hotel data source decision below).
 - No CRUD "search parameters" page — dropped, doesn't serve the RAG story.
 - Retrieval evaluation harness is a stretch goal (Phase 5), not required for core completion.
 
@@ -48,14 +48,18 @@ The pipeline/orchestration quality matters at least as much as the LLM output qu
 │                                                                │
 │  user input → retrieve_guide_chunks(query)   [always runs]   │
 │            → single LLM call w/ tools:                        │
-│                 - search_flights (Kiwi API)                   │
-│                 - search_hotels (Booking Selenium, local only) │
+│                 - search_flights (Kiwi Tequila API)            │
+│                 - search_hotels (Amadeus Hotel Search API)     │
 │              model decides which tools to invoke based on     │
 │              what the user actually supplied                  │
 │            → itinerary grounded in retrieved guide text +     │
 │              (optional) live flight/hotel data                │
 └────────────────────────────────────────────────────────────────┘
 ```
+
+Both tool APIs are official, free-tier, self-service developer APIs — no scraping,
+no partner-approval process, no cost. Both run fine in the hosted deployment, not just
+locally.
 
 ## Components
 
@@ -93,14 +97,24 @@ The pipeline/orchestration quality matters at least as much as the LLM output qu
 ### Reused/fixed components
 - `flight_search.py` / `flight_data.py`: fix the bug where `get_flight_data` returning `None`
   (no results) crashes the caller — wrap as a tool that returns a structured "no flights found"
-  result instead of raising.
-- `scraper/booking.py`: fix `change_currency` ignoring its `currency_code` parameter; fix
-  `scraper/run_bot.py`'s unqualified import. Wrapped as a callable tool instead of a separate
-  Streamlit page; stays local-only (never invoked in the deployed environment).
+  result instead of raising. Wrapped as a callable tool instead of a separate Streamlit page.
+
+### New component: hotel search tool
+- Replaces the Selenium/booking.com scraper entirely. Thin wrapper around the **Amadeus Hotel
+  Search API** (free self-service test tier — official vendor, no scraping, no approval
+  process, no cost). Same shape as the flight tool: structured params in, structured
+  `HotelOffer`-style result out, "no results" handled as a normal structured response rather
+  than an exception.
+- Trade-off, disclosed in the README: the free test environment returns realistic but not
+  fully live production pricing/availability data. Acceptable for a portfolio demo; not
+  presented as real bookable inventory.
 
 ### Dropped components
 - `sql/sql.py`, `pages/flight_searcher_parameters.py` — removed entirely (half-built CRUD,
   SQL-injection bug, doesn't serve the RAG story).
+- `scraper/` (Selenium booking.com bot), `pages/booking_searcher.py` — removed entirely,
+  replaced by the Amadeus hotel search tool above. Eliminates the ToS/DOM-fragility risk
+  rather than merely containing it to local-only use.
 
 ## Data flow
 
@@ -118,7 +132,7 @@ Streamlit renders result, citing sources.
 - Ingestion: per-task/per-article failures are logged and skipped; DAG run as a whole
   succeeds if the majority of articles ingest cleanly. Airflow retries handle transient
   failures (network, rate limits).
-- Query-time: any tool failure (API error, scraper timeout/selector mismatch) degrades
+- Query-time: any tool failure (API error, no matching results) degrades
   gracefully — the itinerary still generates from RAG context alone, with an explicit note
   that live pricing/availability wasn't available. No unhandled exceptions reach the UI.
 - Retrieval returning zero chunks (e.g., unsupported city) is handled explicitly — model is
@@ -129,8 +143,9 @@ Streamlit renders result, citing sources.
 - Ingestion: unit tests for `clean_normalize` and `chunk_articles` as pure functions,
   independent of Airflow.
 - Retrieval: unit test against a small fixture set of known embeddings/expected neighbors.
-- Tool wrappers (`search_flights`, `search_hotels`): unit tests with mocked HTTP/Selenium,
-  covering the empty-result and error paths specifically (these are today's known bugs).
+- Tool wrappers (`search_flights`, `search_hotels`): unit tests with mocked HTTP calls to
+  Kiwi/Amadeus, covering the empty-result and error paths specifically (the flight one is
+  today's known bug).
 - Query orchestration: test with the LLM's tool-call decision mocked, verifying each tool
   path and the no-tool-called path independently.
 - Phase 5 (stretch): a small labeled query set (~15-20 queries → expected city/article)
@@ -138,12 +153,13 @@ Streamlit renders result, citing sources.
 
 ## Deployment
 
-- Hosted (e.g. Render/Fly.io): Streamlit app + Postgres/pgvector reachable from it.
-  The hosted app only ever *reads* the `guide_chunks` table — it does not run the Airflow
-  DAG or the Selenium scraper.
-- Ingestion (Airflow) and the hotel scraper run locally only, via `docker compose up`,
-  documented in the README with setup steps and a demo GIF/walkthrough for the parts that
-  aren't live-clickable.
+- Hosted (e.g. Render/Fly.io): Streamlit app + Postgres/pgvector reachable from it. Both the
+  flight (Kiwi) and hotel (Amadeus) tools work in the hosted deployment — neither depends on
+  local browser automation. The hosted app only ever *reads* the `guide_chunks` table — it
+  does not run the Airflow DAG.
+- Ingestion (Airflow) runs locally only, via `docker compose up`, documented in the README
+  with setup steps and a demo GIF/walkthrough of the ingestion pipeline for reviewers who
+  don't run it themselves.
 
 ## Phased delivery
 
@@ -153,8 +169,8 @@ not required to reach "done."
 1. **Core RAG**: Postgres+pgvector, a plain ingestion script (pre-Airflow) for a handful of
    cities, RAG-grounded itinerary generation working end-to-end locally.
 2. **Orchestration**: wrap the ingestion script as the `wikivoyage_ingest` Airflow DAG.
-3. **Layer 2 tools**: add the single-turn function-calling step (flight search + hotel
-   scraper as tools); fix the known bugs in both during this phase.
+3. **Layer 2 tools**: add the single-turn function-calling step (Kiwi flight search + Amadeus
+   hotel search as tools); fix the known flight-tool bug during this phase.
 4. **Deploy + docs**: host the app + DB, write the README/architecture write-up.
 5. **Stretch**: retrieval evaluation harness.
 
@@ -164,3 +180,5 @@ not required to reach "done."
 - Chunk size/overlap parameters — to be tuned empirically during Phase 1.
 - Embedding model choice (OpenAI `text-embedding-3-small` is the default assumption pending
   confirmation during planning).
+- Amadeus self-service account/API key signup, and confirming current test-tier rate limits
+  are sufficient for demo purposes.
