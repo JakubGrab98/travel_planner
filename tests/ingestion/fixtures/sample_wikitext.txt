@@ -1,0 +1,14 @@
+{{quickbar
+| image = Example.jpg
+}}
+'''Example City''' is a small [[Example Country|country]]'s capital, popular for its old town.
+
+==Understand==
+Example City is known for its '''friendly''' locals and historic architecture. See the
+[[Example Museum|museum]] for more details.
+
+==See==
+The old town has many attractions worth visiting on foot.
+
+==See also==
+* [[Nearby Town]]

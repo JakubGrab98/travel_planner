@@ -1,0 +1,13 @@
+streamlit
+anthropic
+voyageai
+python-dotenv
+psycopg[binary]
+pgvector
+mwparserfromhell
+requests
+python-dateutil
+
+# tests
+pytest
+pytest-mock

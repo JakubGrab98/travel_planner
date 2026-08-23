@@ -4,7 +4,7 @@ import logging.config
 import json
 from pathlib import Path
 import streamlit as st
-from itinerary_tool import generate_travel_plan
+from rag.generation import generate_itinerary
 
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ if __name__ == "__main__":
             and interests and travel_style
         ):
             with st.spinner('Planning your trip...'):
-                travel_plan = generate_travel_plan(
+                travel_plan = generate_itinerary(
                     destination, int(days), budget, interests, travel_style,
                 )
                 st.markdown("## Travel Plan")
