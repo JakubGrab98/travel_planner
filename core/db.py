@@ -2,7 +2,7 @@
 import psycopg
 from pgvector.psycopg import register_vector
 
-import config
+from core import config
 
 
 def get_connection() -> psycopg.Connection:

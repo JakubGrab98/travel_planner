@@ -1,7 +1,7 @@
 """Tests for hotel_search.py: the 3-step Amadeus flow's success/failure paths."""
 from amadeus import ResponseError
 
-from hotel_search import HotelSearch
+from providers.hotel_search import HotelSearch
 
 
 def _fake_response_error():
@@ -11,7 +11,7 @@ def _fake_response_error():
 
 
 def _make_hotel_search(mocker):
-    mocker.patch("hotel_search.Client")
+    mocker.patch("providers.hotel_search.Client")
     return HotelSearch()
 
 

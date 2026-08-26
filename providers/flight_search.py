@@ -2,8 +2,8 @@
 import logging
 import requests
 
-import config
-from flight_data import FlightData
+from core import config
+from providers.flight_data import FlightData
 
 logger = logging.getLogger(__name__)
 

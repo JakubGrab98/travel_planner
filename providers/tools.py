@@ -2,9 +2,9 @@
 import logging
 from datetime import datetime
 
-from flight_search import FlightSearch
-from hotel_search import HotelSearch
-from utils import DATE_FORMAT
+from core.utils import DATE_FORMAT
+from providers.flight_search import FlightSearch
+from providers.hotel_search import HotelSearch
 
 logger = logging.getLogger(__name__)
 

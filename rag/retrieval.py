@@ -3,8 +3,8 @@ from dataclasses import dataclass
 
 from pgvector import Vector
 
-from db import get_connection
-from embeddings import embed_texts
+from clients.embeddings import embed_texts
+from core.db import get_connection
 
 _SEARCH_SQL = """
 SELECT city, section_title, source_url, text, embedding <=> %(query_embedding)s AS distance

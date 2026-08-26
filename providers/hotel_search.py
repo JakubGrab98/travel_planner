@@ -3,8 +3,8 @@ import logging
 
 from amadeus import Client, Location, ResponseError
 
-import config
-from hotel_data import HotelOffer
+from core import config
+from providers.hotel_data import HotelOffer
 
 logger = logging.getLogger(__name__)
 

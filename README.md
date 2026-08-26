@@ -17,6 +17,22 @@ Architecture and phased design: [docs/superpowers/specs/2026-08-22-rag-travel-pl
   Claude decides whether to call either based on what the traveler supplied
 - **Source corpus**: Wikivoyage (MediaWiki Action API), 5 seed cities (Rome, Paris, Barcelona, Tokyo, New York City)
 
+## Structure
+
+```
+core/       config, Postgres connection, date helpers -- shared infra
+clients/    Anthropic + Voyage AI client wrappers
+providers/  Kiwi/Amadeus travel-data APIs + the Claude tool-calling glue over them
+ingestion/  Wikivoyage fetch -> clean -> chunk -> embed -> store pipeline
+rag/        retrieval + grounded generation
+dags/       Airflow DAG (Airflow-container-only, see Setup)
+eval/       retrieval hit-rate evaluation (see Evaluation)
+tests/      mirrors the packages above; kept out: tests/dags (Airflow-only deps)
+```
+`Home_Page.py` and `pages/` stay at repo root — Streamlit's multipage convention requires
+`pages/` to sit next to the entry script, and Streamlit Community Cloud's dashboard has
+`Home_Page.py` configured as the app's main file outside the repo.
+
 ## Setup
 
 ```bash
@@ -129,7 +145,7 @@ store.
 
 - **App: [Streamlit Community Cloud](https://share.streamlit.io)** — free, and since
   secrets entered in its dashboard are exposed as real environment variables, the app's
-  existing `config.py`/`os.getenv()` pattern works with no code changes.
+  existing `core/config.py`/`os.getenv()` pattern works with no code changes.
 - **Database: [Neon](https://neon.tech)** — free tier, native pgvector, scale-to-zero with
   automatic resume on the next query (rather than a hard multi-day pause requiring manual
   reactivation, which several alternatives have).

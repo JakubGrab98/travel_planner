@@ -1,5 +1,5 @@
 """Idempotent upsert of chunks (with embeddings) into the guide_chunks table."""
-from db import get_connection
+from core.db import get_connection
 from ingestion.chunk import Chunk
 
 _UPSERT_SQL = """

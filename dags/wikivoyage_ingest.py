@@ -20,7 +20,7 @@ import pendulum
 from airflow.sdk import dag, task
 from airflow.sdk.exceptions import AirflowSkipException
 
-from embeddings import embed_texts
+from clients.embeddings import embed_texts
 from ingestion.chunk import Chunk, chunk_sections
 from ingestion.cities import CITY_LIST
 from ingestion.clean import Section, clean_wikitext

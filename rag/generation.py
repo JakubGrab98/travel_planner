@@ -2,10 +2,10 @@
 import json
 import logging
 
-import config
-from anthropic_client import get_anthropic_client
+from clients.anthropic_client import get_anthropic_client
+from core import config
+from providers.tools import execute_tool_call
 from rag.retrieval import retrieve_guide_chunks
-from tools import execute_tool_call
 
 logger = logging.getLogger(__name__)
 

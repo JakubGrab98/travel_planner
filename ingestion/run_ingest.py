@@ -1,7 +1,7 @@
 """CLI entrypoint: fetch, clean, chunk, embed, and store each configured city's article."""
 import logging
 
-from embeddings import embed_texts
+from clients.embeddings import embed_texts
 from ingestion.chunk import chunk_sections
 from ingestion.cities import CITY_LIST
 from ingestion.clean import clean_wikitext

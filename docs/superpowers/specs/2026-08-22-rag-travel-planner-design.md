@@ -222,6 +222,13 @@ not required to reach "done."
 5. **Stretch** — done. `eval/run_eval.py`, 18/18 (100%) hit-rate after the tuning fix
    described in Testing above.
 
+**Post-Phase-5 cleanup**: the flat root-level modules named throughout this doc
+(`config.py`, `db.py`, `utils.py`, `anthropic_client.py`, `embeddings.py`, `flight_search.py`,
+`flight_data.py`, `hotel_search.py`, `hotel_data.py`, `tools.py`) were regrouped into
+`core/`, `clients/`, `providers/` packages for a cleaner repo structure — same modules, same
+behavior, new locations (see `README.md`'s Structure section). Every mention above by bare
+filename still refers to the same code, just nested now.
+
 ## Open items for implementation planning
 
 - ~~Exact fixed city list for the initial Wikivoyage ingest~~ — resolved in Phase 1: Rome,

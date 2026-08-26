@@ -4,7 +4,7 @@ import time
 
 import voyageai
 
-import config
+from core import config
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 """Lazy singleton Anthropic client (mockable in tests)."""
 import anthropic
 
-import config
+from core import config
 
 _client = None
 

@@ -1,7 +1,7 @@
 """Tests for tools.py: the dispatcher and both tool execution wrappers."""
-from flight_data import FlightData
-from hotel_data import HotelOffer
-from tools import execute_tool_call
+from providers.flight_data import FlightData
+from providers.hotel_data import HotelOffer
+from providers.tools import execute_tool_call
 
 
 def test_execute_tool_call_unknown_tool_name():
@@ -13,7 +13,7 @@ def test_execute_tool_call_unknown_tool_name():
 # --- search_flights ---
 
 def test_search_flights_origin_airport_not_found(mocker):
-    mock_cls = mocker.patch("tools.FlightSearch")
+    mock_cls = mocker.patch("providers.tools.FlightSearch")
     mock_cls.return_value.get_airport_code.return_value = None
 
     result = execute_tool_call("search_flights", {
@@ -25,7 +25,7 @@ def test_search_flights_origin_airport_not_found(mocker):
 
 
 def test_search_flights_destination_airport_not_found_never_hits_kiwi_search(mocker):
-    mock_cls = mocker.patch("tools.FlightSearch")
+    mock_cls = mocker.patch("providers.tools.FlightSearch")
     mock_cls.return_value.get_airport_code.side_effect = ["WAW", None]
 
     result = execute_tool_call("search_flights", {
@@ -37,7 +37,7 @@ def test_search_flights_destination_airport_not_found_never_hits_kiwi_search(moc
 
 
 def test_search_flights_no_results_from_kiwi(mocker):
-    mock_cls = mocker.patch("tools.FlightSearch")
+    mock_cls = mocker.patch("providers.tools.FlightSearch")
     mock_cls.return_value.get_airport_code.side_effect = ["WAW", "CDG"]
     mock_cls.return_value.get_flight_data.return_value = None
 
@@ -49,7 +49,7 @@ def test_search_flights_no_results_from_kiwi(mocker):
 
 
 def test_search_flights_converts_dates_and_computes_nights(mocker):
-    mock_cls = mocker.patch("tools.FlightSearch")
+    mock_cls = mocker.patch("providers.tools.FlightSearch")
     mock_cls.return_value.get_airport_code.side_effect = ["WAW", "CDG"]
     mock_cls.return_value.get_flight_data.return_value = None
 
@@ -70,7 +70,7 @@ def test_search_flights_converts_dates_and_computes_nights(mocker):
 
 
 def test_search_flights_rejects_return_before_departure(mocker):
-    mock_cls = mocker.patch("tools.FlightSearch")
+    mock_cls = mocker.patch("providers.tools.FlightSearch")
     mock_cls.return_value.get_airport_code.side_effect = ["WAW", "CDG"]
 
     result = execute_tool_call("search_flights", {
@@ -82,7 +82,7 @@ def test_search_flights_rejects_return_before_departure(mocker):
 
 
 def test_search_flights_success(mocker):
-    mock_cls = mocker.patch("tools.FlightSearch")
+    mock_cls = mocker.patch("providers.tools.FlightSearch")
     mock_cls.return_value.get_airport_code.side_effect = ["WAW", "CDG"]
     mock_cls.return_value.get_flight_data.return_value = FlightData(
         price=250, airlines="LOT", origin_city="Warsaw", origin_airport="WAW",
@@ -101,7 +101,7 @@ def test_search_flights_success(mocker):
 
 
 def test_search_flights_upstream_exception_becomes_structured_failure(mocker):
-    mock_cls = mocker.patch("tools.FlightSearch")
+    mock_cls = mocker.patch("providers.tools.FlightSearch")
     mock_cls.return_value.get_airport_code.side_effect = ["WAW", "CDG"]
     mock_cls.return_value.get_flight_data.side_effect = RuntimeError("boom")
 
@@ -115,7 +115,7 @@ def test_search_flights_upstream_exception_becomes_structured_failure(mocker):
 # --- search_hotels ---
 
 def test_search_hotels_city_not_found(mocker):
-    mock_cls = mocker.patch("tools.HotelSearch")
+    mock_cls = mocker.patch("providers.tools.HotelSearch")
     mock_cls.return_value.get_city_code.return_value = None
 
     result = execute_tool_call("search_hotels", {
@@ -125,7 +125,7 @@ def test_search_hotels_city_not_found(mocker):
 
 
 def test_search_hotels_no_hotel_ids(mocker):
-    mock_cls = mocker.patch("tools.HotelSearch")
+    mock_cls = mocker.patch("providers.tools.HotelSearch")
     mock_cls.return_value.get_city_code.return_value = "PAR"
     mock_cls.return_value.get_hotel_ids.return_value = None
 
@@ -136,7 +136,7 @@ def test_search_hotels_no_hotel_ids(mocker):
 
 
 def test_search_hotels_no_offers(mocker):
-    mock_cls = mocker.patch("tools.HotelSearch")
+    mock_cls = mocker.patch("providers.tools.HotelSearch")
     mock_cls.return_value.get_city_code.return_value = "PAR"
     mock_cls.return_value.get_hotel_ids.return_value = ["HT1"]
     mock_cls.return_value.get_hotel_offers.return_value = None
@@ -148,7 +148,7 @@ def test_search_hotels_no_offers(mocker):
 
 
 def test_search_hotels_success(mocker):
-    mock_cls = mocker.patch("tools.HotelSearch")
+    mock_cls = mocker.patch("providers.tools.HotelSearch")
     mock_cls.return_value.get_city_code.return_value = "PAR"
     mock_cls.return_value.get_hotel_ids.return_value = ["HT1"]
     mock_cls.return_value.get_hotel_offers.return_value = HotelOffer(
@@ -164,7 +164,7 @@ def test_search_hotels_success(mocker):
 
 
 def test_search_hotels_upstream_exception_becomes_structured_failure(mocker):
-    mock_cls = mocker.patch("tools.HotelSearch")
+    mock_cls = mocker.patch("providers.tools.HotelSearch")
     mock_cls.return_value.get_city_code.side_effect = RuntimeError("boom")
 
     result = execute_tool_call("search_hotels", {
