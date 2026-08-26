@@ -13,6 +13,8 @@ Architecture and phased design: [docs/superpowers/specs/2026-08-22-rag-travel-pl
 - **Vector store**: Postgres 16 + pgvector
 - **Ingestion orchestration**: Apache Airflow 3.3 (`LocalExecutor`, single-container `standalone` mode)
 - **App**: Streamlit
+- **Live tool-calling**: Kiwi Tequila API (flights), Amadeus Hotel Search API (hotels) —
+  Claude decides whether to call either based on what the traveler supplied
 - **Source corpus**: Wikivoyage (MediaWiki Action API), 5 seed cities (Rome, Paris, Barcelona, Tokyo, New York City)
 
 ## Setup
@@ -102,11 +104,47 @@ deliberately) and runs via:
 docker compose exec airflow python -m pytest /opt/airflow/project/tests/dags -v
 ```
 
+## Deployment
+
+The hosted deployment uses two free-tier services — the ingestion pipeline (and Airflow
+itself) stay local-only, per the design spec; the hosted app only ever *reads* the vector
+store.
+
+- **App: [Streamlit Community Cloud](https://share.streamlit.io)** — free, and since
+  secrets entered in its dashboard are exposed as real environment variables, the app's
+  existing `config.py`/`os.getenv()` pattern works with no code changes.
+- **Database: [Neon](https://neon.tech)** — free tier, native pgvector, scale-to-zero with
+  automatic resume on the next query (rather than a hard multi-day pause requiring manual
+  reactivation, which several alternatives have).
+
+### One-time setup
+
+1. **Create a Neon project** and grab its connection details (host, port, database, user,
+   password — Neon presents these as a single connection string).
+2. **Create the schema on Neon**: run the contents of [db/init/01_init.sql](db/init/01_init.sql)
+   against the new database (simplest via Neon's own SQL editor).
+3. **Populate it** by running the ingestion script once, pointed at Neon via inline env var
+   overrides (so your local `.env` never mixes with production credentials):
+   ```bash
+   POSTGRES_HOST=<neon-host> POSTGRES_PORT=<neon-port> POSTGRES_DB=<neon-db> \
+   POSTGRES_USER=<neon-user> POSTGRES_PASSWORD=<neon-password> POSTGRES_SSLMODE=require \
+   python -m ingestion.run_ingest
+   ```
+4. **Create the Streamlit Community Cloud app**: connect this GitHub repo, set the main
+   file to `Home_Page.py`, and set the Python version to 3.11 under Advanced Settings.
+5. **Add secrets** in the Streamlit Cloud dashboard (root-level `key = value`, not nested):
+   `ANTHROPIC_API_KEY`, `VOYAGE_API_KEY`, `KIWI_API_KEY`, `AMADEUS_CLIENT_ID`/
+   `AMADEUS_CLIENT_SECRET` (optional — the app degrades gracefully without them), and the
+   Neon `POSTGRES_*` values including `POSTGRES_SSLMODE=require`.
+
 ## Project status
 
 - **Phase 1 — Core RAG**: done. Ingestion script, RAG-grounded generation, live-verified.
 - **Phase 2 — Airflow orchestration**: done. `wikivoyage_ingest` DAG, live-verified
   end-to-end (including idempotency across repeated runs).
-- **Phase 3 — Live tool-calling** (flight/hotel search): not started.
-- **Phase 4 — Deployment**: not started.
+- **Phase 3 — Live tool-calling** (flight/hotel search): done. Live-verified against the
+  real Kiwi API and Claude; hotel search implemented but not yet live-verified end-to-end
+  (Amadeus self-service signup still pending).
+- **Phase 4 — Deployment**: setup instructions above ready; live deployment pending account
+  creation on Neon/Streamlit Community Cloud.
 - **Phase 5 — Retrieval evaluation** (stretch): not started.

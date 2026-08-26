@@ -17,6 +17,7 @@ def get_connection() -> psycopg.Connection:
         dbname=config.POSTGRES_DB,
         user=config.POSTGRES_USER,
         password=config.POSTGRES_PASSWORD,
+        sslmode=config.POSTGRES_SSLMODE,
     )
     register_vector(conn)
     return conn
