@@ -1,6 +1,7 @@
 streamlit
 anthropic
 voyageai
+amadeus
 python-dotenv
 psycopg[binary]
 pgvector

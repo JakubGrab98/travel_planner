@@ -1,11 +1,10 @@
 """Module responsible for communication with the flight API"""
 import logging
-import os
 import requests
-from dotenv import load_dotenv
+
+import config
 from flight_data import FlightData
 
-load_dotenv()
 logger = logging.getLogger(__name__)
 
 
@@ -13,7 +12,7 @@ class FlightSearch():
     """Retrieve information about the flight based on user parameters.
     Provide data like deistnation airport code or the cheapiest flight details"""
 
-    API_KEY = os.getenv("KIWI_API_KEY")
+    API_KEY = config.KIWI_API_KEY
     LOCATION_URL = "https://api.tequila.kiwi.com/locations/query"
     SEARCH_URL = "https://api.tequila.kiwi.com/v2/search?"
 
@@ -42,8 +41,17 @@ class FlightSearch():
                     }
             )
             data = response.json()
-            city_code = data["locations"][0]["id"]
-            return city_code
+            locations = data["locations"]
+            # Kiwi's search is a loose substring match against airport/city names -- e.g.
+            # a search for "Rome" can return San Salvador first, because its airport is
+            # named after "Monsenor Oscar Arnulfo Romero" (containing "Rome" as a
+            # substring). Prefer a location whose city name actually matches the query
+            # before falling back to the raw first result.
+            for location in locations:
+                city = location.get("city") or {}
+                if isinstance(city, dict) and city.get("name", "").lower() == city_name.lower():
+                    return location["id"]
+            return locations[0]["id"]
         except IndexError as e:
             logger.error("Airport code not found.")
             e.add_note("No airport in this destination")
