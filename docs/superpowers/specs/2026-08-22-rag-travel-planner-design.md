@@ -148,23 +148,35 @@ Streamlit renders result, citing sources.
 - Ingestion: unit tests for `clean_normalize` and `chunk_articles` as pure functions,
   independent of Airflow.
 - Retrieval: unit test against a small fixture set of known embeddings/expected neighbors.
-- Tool wrappers (`search_flights`, `search_hotels`): unit tests with mocked HTTP calls to
-  Kiwi/Amadeus, covering the empty-result and error paths specifically (the flight one is
-  today's known bug).
-- Query orchestration: test with the LLM's tool-call decision mocked, verifying each tool
-  path and the no-tool-called path independently.
-- Phase 5 (stretch): a small labeled query set (~15-20 queries → expected city/article)
-  scored for retrieval hit-rate.
+- Tool wrappers (`search_flights`, `search_hotels`) — done: `tests/test_flight_search.py`,
+  `tests/test_hotel_search.py`, `tests/test_tools.py`, mocked, covering empty-result and
+  error paths. Two real bugs surfaced and fixed during Phase 3 beyond the originally-named
+  flight-tool crash: Kiwi's `date_from`/`date_to` are a search *window*, not fixed dates
+  (the actual round trip needs `nights_in_dst_from`/`nights_in_dst_to`); and
+  `get_airport_code` took Kiwi's first search result unconditionally, which for "Rome"
+  returned San Salvador first (substring match on "Rome**ro**") — silently wrong data, not
+  a crash, and arguably the more serious of the two.
+- Query orchestration — done: `tests/rag/test_generation.py` covers the tool-use round-trip
+  (tool called + resolved in one bounded follow-up call, and the no-tool-needed path) with
+  the LLM's tool-call decision mocked.
+- Phase 5 (stretch) — done: `eval/run_eval.py`, an 18-query labeled set (15 positive across
+  the 5 cities, 3 negative for never-ingested cities) scored for retrieval hit-rate. Found
+  and fixed a real `max_distance` tuning gap: 0.45 (Phase 1's single-spot-check value) cut
+  off a genuine Paris hit at 0.457 while the closest known cross-city false positive sat at
+  0.479 — retuned to 0.46, confirmed 18/18 (100%) after.
 
 ## Deployment
 
-- Hosted (e.g. Render/Fly.io): Streamlit app + Postgres/pgvector reachable from it. Both the
-  flight (Kiwi) and hotel (Amadeus) tools work in the hosted deployment — neither depends on
-  local browser automation. The hosted app only ever *reads* the `guide_chunks` table — it
-  does not run the Airflow DAG.
-- Ingestion (Airflow) runs locally only, via `docker compose up`, documented in the README
-  with setup steps and a demo GIF/walkthrough of the ingestion pipeline for reviewers who
-  don't run it themselves.
+- **Hosted — done**: Streamlit Community Cloud (app) + Neon (Postgres+pgvector, free tier,
+  scale-to-zero) — not Render/Fly.io as originally sketched here; researched during Phase 4
+  planning and Neon won on native pgvector support plus auto-resume behavior (vs.
+  alternatives with a hard multi-day inactivity pause requiring manual reactivation). The
+  flight (Kiwi) tool is confirmed working live on the hosted app; the hotel (Amadeus) tool
+  is deployed but not yet live-verified end-to-end (signup still pending, see Open items).
+  The hosted app only ever *reads* the `guide_chunks` table — it does not run the Airflow DAG.
+- Ingestion (Airflow) runs locally only, via `docker compose up`; populating the hosted
+  Neon database is a separate one-time step (`ingestion/run_ingest.py` pointed at Neon via
+  env var overrides), documented in the README.
 
 ## Phased delivery
 
@@ -200,19 +212,25 @@ not required to reach "done."
      created manually once (documented in the README).
    - `Dockerfile.airflow` + `requirements-ingestion.txt` keep Airflow's own large,
      constraint-pinned dependency tree fully isolated from the app's `requirements.txt`.
-3. **Layer 2 tools**: add the single-turn function-calling step (Kiwi flight search + Amadeus
-   hotel search as tools); fix the known flight-tool bug during this phase. *(Not started.)*
-4. **Deploy + docs**: host the app + DB, write the README/architecture write-up. README setup
-   docs already exist (`README.md`) covering Phases 1-2; hosted deployment itself not started.
-5. **Stretch**: retrieval evaluation harness. *(Not started.)*
+3. **Layer 2 tools** — done. `tools.py` (schemas + a never-raising dispatcher), `hotel_search.py`/
+   `hotel_data.py` (Amadeus's 3-step city→hotel-IDs→offers flow), `rag/generation.py`'s
+   bounded single-round tool-use loop. `pages/Flight_Searcher.py` retired, per this doc's own
+   "instead of a separate Streamlit page" wording. Live-verified against real Kiwi + Claude,
+   including both bugs noted in Testing above; Amadeus path implemented but blocked on signup.
+4. **Deploy + docs** — done. Streamlit Community Cloud + Neon (see Deployment above);
+   `README.md` covers setup, tests, evaluation, and deployment for all phases.
+5. **Stretch** — done. `eval/run_eval.py`, 18/18 (100%) hit-rate after the tuning fix
+   described in Testing above.
 
 ## Open items for implementation planning
 
 - ~~Exact fixed city list for the initial Wikivoyage ingest~~ — resolved in Phase 1: Rome,
   Paris, Barcelona, Tokyo, New York City.
 - ~~Chunk size/overlap parameters~~ — resolved in Phase 1: 1000 chars / 150 char overlap,
-  section-aware. Retrieval distance cutoff (0.45 cosine distance) tuned empirically against
-  real ingested data during Phase 1's live verification.
+  section-aware. Retrieval distance cutoff tuned empirically: 0.45 from a single spot check
+  during Phase 1, refined to **0.46** during Phase 5 after a systematic 18-query eval
+  (`eval/run_eval.py`) found the original value cutting off a genuine hit by a narrow
+  margin — see Testing above.
 - ~~Embedding model choice~~ — resolved during Phase 1 planning: **Voyage AI `voyage-3.5`**
   (`output_dimension=1024`), not OpenAI as originally assumed here — switched alongside the
   generation model to Anthropic Claude, since Anthropic has no embeddings endpoint of its own

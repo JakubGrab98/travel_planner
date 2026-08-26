@@ -104,6 +104,23 @@ deliberately) and runs via:
 docker compose exec airflow python -m pytest /opt/airflow/project/tests/dags -v
 ```
 
+## Evaluation
+
+```bash
+python -m eval.run_eval
+```
+
+Scores `rag/retrieval.py`'s hit-rate against a labeled set of 18 queries (`eval/queries.py`)
+mirroring the real query shape the app builds — 15 positive cases (5 cities × 3 query
+variants each) plus 3 negative cases (never-ingested cities, which should retrieve nothing).
+Requires the local Postgres populated (real DB + real Voyage API calls, not part of `pytest`).
+
+Building this surfaced a real tuning issue in the empirically-set `max_distance` cutoff: a
+genuine Paris hit was being cut off by a razor-thin margin (0.457 vs. the original 0.45
+threshold) while the closest known false positive across cities sat at 0.479 — a margin of
+just 0.019, tighter than the original single-query spot check suggested. Retuned to 0.46,
+confirmed 18/18 (100%) after the fix.
+
 ## Deployment
 
 The hosted deployment uses two free-tier services — the ingestion pipeline (and Airflow
@@ -145,6 +162,8 @@ store.
 - **Phase 3 — Live tool-calling** (flight/hotel search): done. Live-verified against the
   real Kiwi API and Claude; hotel search implemented but not yet live-verified end-to-end
   (Amadeus self-service signup still pending).
-- **Phase 4 — Deployment**: setup instructions above ready; live deployment pending account
-  creation on Neon/Streamlit Community Cloud.
-- **Phase 5 — Retrieval evaluation** (stretch): not started.
+- **Phase 4 — Deployment**: done. Live on Streamlit Community Cloud + Neon; confirmed
+  working with real flight tool-calling on the hosted app. Hotel search still pending
+  Amadeus signup (degrades gracefully in the meantime).
+- **Phase 5 — Retrieval evaluation** (stretch): done. 18/18 (100%) hit-rate; surfaced and
+  fixed a real `max_distance` tuning gap in the process (see Evaluation section above).

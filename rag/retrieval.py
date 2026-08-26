@@ -14,12 +14,15 @@ ORDER BY distance
 LIMIT %(k)s;
 """
 
-# Empirically tuned against the ingested corpus: genuinely relevant Rome hits scored
-# 0.37-0.41 cosine distance for a Rome query, while the closest cross-city false positive
-# for a destination with no ingested content (a Barcelona chunk, for a Lisbon query) scored
-# 0.499 — 0.45 separates the two with margin. Revisit if it proves too strict/loose in
-# practice as more cities are added.
-_DEFAULT_MAX_DISTANCE = 0.45
+# Empirically tuned, refined using eval/run_eval.py's systematic query set (Phase 5) after
+# an initial single-query spot check (Phase 1) proved too strict: a real Paris/Buy hit
+# scored 0.457 for a "Paris: shopping, food" query and was being cut off at the old 0.45
+# threshold, while the closest known cross-city false positive (Barcelona/Eat, for a
+# never-ingested "Lisbon" query) scored 0.479 -- 0.46 sits between the two, but the margin
+# is narrow (0.019) and this genuinely is a delicate tuning point, not a robust one. If more
+# cities are added or this starts misbehaving, re-run eval/run_eval.py -- it exists
+# specifically to make catching a regression here fast rather than another one-off spot check.
+_DEFAULT_MAX_DISTANCE = 0.46
 
 
 @dataclass
