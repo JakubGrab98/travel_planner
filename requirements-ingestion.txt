@@ -1,0 +1,7 @@
+voyageai
+psycopg[binary]
+pgvector
+mwparserfromhell
+requests
+python-dotenv
+pytest

@@ -18,5 +18,38 @@ services:
       timeout: 3s
       retries: 10
 
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      # .env's POSTGRES_HOST=localhost is for host-side venv/pytest runs; inside this
+      # container it must be the compose service name.
+      POSTGRES_HOST: postgres
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      PYTHONPATH: /opt/airflow/project
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/opt/airflow/project
+      - airflow_data:/opt/airflow
+    command: ["standalone"]
+    healthcheck:
+      # Airflow 3's webserver is renamed "api-server"; /health moved to a versioned path.
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v2/monitor/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
 volumes:
   pgdata:
+  airflow_data:
